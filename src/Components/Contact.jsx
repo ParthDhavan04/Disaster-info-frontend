@@ -1,72 +1,63 @@
 import React from "react";
 
 export default function Contact() {
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    alert("Message sent! (This is a demo)");
-  };
-
   return (
-    <div className="min-h-screen bg-gray-900 text-white relative py-20 px-4">
-       {/* Background */}
-       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-gradient-to-r from-red-900/20 to-orange-900/20 rounded-full blur-3xl"></div>
-      </div>
+    <div className="min-h-screen bg-neoWhite dark:bg-neoDark py-12 px-6 relative overflow-hidden">
+      {/* Abstract Background Shapes */}
+      <div className="absolute top-20 left-10 w-32 h-32 bg-gYellow rounded-full border-4 border-neoBlack opacity-50 animate-bounce hidden md:block"></div>
+      <div className="absolute bottom-20 right-10 w-24 h-24 bg-gBlue border-4 border-neoBlack transform rotate-12 opacity-50 hidden md:block"></div>
+      <div className="absolute top-1/2 left-1/4 w-16 h-16 bg-gGreen border-4 border-neoBlack rounded-full opacity-30 animate-pulse hidden md:block"></div>
 
-      <div className="max-w-5xl mx-auto grid md:grid-cols-2 gap-12 relative z-10">
-        
-        {/* Contact Info */}
-        <div className="flex flex-col justify-center">
-          <h1 className="text-4xl font-bold mb-6">Get in touch</h1>
-          <p className="text-gray-400 text-lg mb-8">
-            Have questions about the platform? Want to contribute to the data sources? 
-            We'd love to hear from you.
-          </p>
+      <div className="max-w-4xl mx-auto relative z-10">
+        <div className="bg-white dark:bg-neoDark border-4 border-neoBlack dark:border-neoWhite shadow-neo-lg p-8 md:p-12 transform rotate-1 hover:rotate-0 transition-transform duration-300">
 
-          <div className="space-y-6">
-            <div className="flex items-center space-x-4">
-              <div className="w-12 h-12 rounded-xl bg-gray-800 flex items-center justify-center text-red-500">
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
-              </div>
-              <div>
-                <p className="font-semibold">Email</p>
-                <p className="text-gray-400">support@disastereye.com</p>
-              </div>
-            </div>
-            
-            <div className="flex items-center space-x-4">
-              <div className="w-12 h-12 rounded-xl bg-gray-800 flex items-center justify-center text-orange-500">
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
-              </div>
-              <div>
-                <p className="font-semibold">Office</p>
-                <p className="text-gray-400">New Delhi, India</p>
-              </div>
-            </div>
+          <div className="text-center mb-10">
+            <h1 className="text-4xl md:text-5xl font-black text-neoBlack dark:text-neoWhite mb-4 uppercase tracking-tighter">
+              Get In Touch
+            </h1>
+            <p className="text-lg font-bold text-gray-600 dark:text-gray-300">
+              Have questions? Found a bug? Just want to say hi?
+            </p>
           </div>
-        </div>
 
-        {/* Form */}
-        <div className="bg-gray-800/50 backdrop-blur-xl p-8 rounded-3xl border border-gray-700 shadow-2xl">
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">Name</label>
-              <input type="text" className="w-full bg-gray-900/50 border border-gray-600 rounded-xl px-4 py-3 focus:border-red-500 focus:ring-1 focus:ring-red-500 outline-none transition-colors" placeholder="Your name" />
+          <form className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <label className="text-lg font-black text-neoBlack dark:text-neoWhite uppercase">Name</label>
+                <input
+                  type="text"
+                  placeholder="YOUR NAME"
+                  className="w-full px-4 py-3 bg-white dark:bg-gray-800 border-2 border-neoBlack dark:border-neoWhite text-neoBlack dark:text-white placeholder-gray-400 outline-none focus:bg-gBlue/10 focus:border-gBlue transition-all font-bold"
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-lg font-black text-neoBlack dark:text-neoWhite uppercase">Email</label>
+                <input
+                  type="email"
+                  placeholder="YOU@EXAMPLE.COM"
+                  className="w-full px-4 py-3 bg-white dark:bg-gray-800 border-2 border-neoBlack dark:border-neoWhite text-neoBlack dark:text-white placeholder-gray-400 outline-none focus:bg-gBlue/10 focus:border-gBlue transition-all font-bold"
+                />
+              </div>
             </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">Email</label>
-              <input type="email" className="w-full bg-gray-900/50 border border-gray-600 rounded-xl px-4 py-3 focus:border-red-500 focus:ring-1 focus:ring-red-500 outline-none transition-colors" placeholder="you@example.com" />
+
+            <div className="space-y-2">
+              <label className="text-lg font-black text-neoBlack dark:text-neoWhite uppercase">Message</label>
+              <textarea
+                rows="5"
+                placeholder="TYPE YOUR MESSAGE HERE..."
+                className="w-full px-4 py-3 bg-white dark:bg-gray-800 border-2 border-neoBlack dark:border-neoWhite text-neoBlack dark:text-white placeholder-gray-400 outline-none focus:bg-gBlue/10 focus:border-gBlue shadow-neo transition-all font-bold resize-none"
+              ></textarea>
             </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">Message</label>
-              <textarea rows="4" className="w-full bg-gray-900/50 border border-gray-600 rounded-xl px-4 py-3 focus:border-red-500 focus:ring-1 focus:ring-red-500 outline-none transition-colors" placeholder="How can we help?"></textarea>
-            </div>
-            <button type="submit" className="w-full bg-gradient-to-r from-red-500 to-orange-500 text-white font-semibold py-3 rounded-xl hover:from-red-600 hover:to-orange-600 transition-all shadow-lg">
+
+            <button
+              type="button"
+              className="w-full md:w-auto px-8 py-4 bg-gRed text-white font-black text-xl border-2 border-neoBlack shadow-neo hover:translate-x-[4px] hover:translate-y-[4px] hover:shadow-none transition-all uppercase"
+            >
               Send Message
             </button>
           </form>
-        </div>
 
+        </div>
       </div>
     </div>
   );

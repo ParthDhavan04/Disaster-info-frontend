@@ -2,64 +2,50 @@ import React from "react";
 
 export default function Privacy() {
   return (
-    <div className="min-h-screen bg-gray-900 text-gray-300 relative py-20 px-6">
-       {/* Background Accent */}
-       <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-red-500 via-orange-500 to-pink-500"></div>
-       
-      <div className="max-w-4xl mx-auto">
-        <div className="text-center mb-16">
-          <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">Privacy Policy</h1>
-          <p className="text-gray-400">Last updated: November 24, 2025</p>
-        </div>
+    <div className="min-h-screen bg-gYellow dark:bg-neoDark py-12 px-6">
+      <div className="max-w-3xl mx-auto">
+        <div className="bg-white dark:bg-neoDark border-4 border-neoBlack dark:border-neoWhite shadow-neo-lg p-8 md:p-12 relative">
+          {/* Paper Clip Effect */}
+          <div className="absolute -top-4 left-1/2 -translate-x-1/2 w-32 h-8 bg-neoBlack dark:bg-gray-700 border-2 border-white transform -rotate-1"></div>
 
-        <div className="space-y-12">
-          {/* Section 1 */}
-          <section className="bg-gray-800/40 backdrop-blur-md p-8 rounded-3xl border border-gray-700">
-            <h2 className="text-2xl font-bold text-white mb-4 flex items-center">
-              <span className="w-8 h-8 rounded-lg bg-red-500/20 text-red-500 flex items-center justify-center mr-3 text-sm">01</span>
-              Information We Collect
-            </h2>
-            <p className="mb-4">
-              DisasterEye collects information to provide real-time safety alerts. This includes:
-            </p>
-            <ul className="list-disc pl-5 space-y-2 text-gray-400">
-              <li><strong>Account Information:</strong> Name and email address provided during signup.</li>
-              <li><strong>Location Data:</strong> Real-time geolocation data when you use the Dashboard map to report incidents.</li>
-              <li><strong>Usage Data:</strong> Information about how you interact with our alerts and reports.</li>
-            </ul>
-          </section>
+          <h1 className="text-4xl md:text-5xl font-black text-neoBlack dark:text-neoWhite mb-8 border-b-4 border-neoBlack dark:border-neoWhite pb-4">
+            Privacy Policy
+          </h1>
 
-          {/* Section 2 */}
-          <section className="bg-gray-800/40 backdrop-blur-md p-8 rounded-3xl border border-gray-700">
-            <h2 className="text-2xl font-bold text-white mb-4 flex items-center">
-              <span className="w-8 h-8 rounded-lg bg-orange-500/20 text-orange-500 flex items-center justify-center mr-3 text-sm">02</span>
-              How We Use Your Data
-            </h2>
-            <p className="mb-4">
-              Your data is used strictly for safety and humanitarian purposes:
-            </p>
-            <ul className="list-disc pl-5 space-y-2 text-gray-400">
-              <li>To verify disaster reports based on proximity.</li>
-              <li>To visualize aggregate data on the public dashboard.</li>
-              <li>To send critical notifications to users in affected zones.</li>
-            </ul>
-          </section>
+          <div className="space-y-8 text-neoBlack dark:text-gray-300 leading-relaxed font-medium">
+            <section>
+              <h2 className="text-2xl font-black text-neoBlack dark:text-white mb-3 uppercase bg-gBlue/20 inline-block px-2">1. Data Collection</h2>
+              <p>
+                We collect data from public sources including social media platforms, news RSS feeds, and official government disaster warning systems. We do not collect personal private data from our users beyond what is necessary for account creation (email and name).
+              </p>
+            </section>
 
-          {/* Section 3 */}
-          <section className="bg-gray-800/40 backdrop-blur-md p-8 rounded-3xl border border-gray-700">
-            <h2 className="text-2xl font-bold text-white mb-4 flex items-center">
-              <span className="w-8 h-8 rounded-lg bg-yellow-500/20 text-yellow-500 flex items-center justify-center mr-3 text-sm">03</span>
-              Data Security
-            </h2>
-            <p>
-              We implement industry-standard encryption (including bcrypt for passwords and HTTPS for data transmission) to protect your personal information. We do not sell your data to third-party advertisers.
-            </p>
-          </section>
+            <section>
+              <h2 className="text-2xl font-black text-neoBlack dark:text-white mb-3 uppercase bg-gRed/20 inline-block px-2">2. Use of Information</h2>
+              <p>
+                The aggregated data is used solely for the purpose of detecting, analyzing, and visualizing potential disaster events. This information is made available to the public and authorized organizations to aid in rapid response efforts.
+              </p>
+            </section>
 
-          <div className="text-center pt-8 border-t border-gray-800">
-            <p className="text-sm text-gray-500">
-              If you have any questions about this Privacy Policy, please contact us at <a href="/contact" className="text-orange-500 hover:underline">privacy@disastereye.com</a>.
-            </p>
+            <section>
+              <h2 className="text-2xl font-black text-neoBlack dark:text-white mb-3 uppercase bg-gGreen/20 inline-block px-2">3. Data Security</h2>
+              <p>
+                We implement industry-standard security measures to protect user accounts and our infrastructure. All data transmission is encrypted using TLS/SSL protocols.
+              </p>
+            </section>
+
+            <section>
+              <h2 className="text-2xl font-black text-neoBlack dark:text-white mb-3 uppercase bg-gYellow/20 inline-block px-2">4. Third-Party Sharing</h2>
+              <p>
+                We do not sell user data to third parties. Anonymized disaster statistics may be shared with research institutions for the purpose of improving disaster response algorithms.
+              </p>
+            </section>
+
+            <div className="pt-8 border-t-4 border-neoBlack dark:border-neoWhite mt-8">
+              <p className="text-sm font-bold text-gray-500 uppercase">
+                Last updated: November 2025
+              </p>
+            </div>
           </div>
         </div>
       </div>

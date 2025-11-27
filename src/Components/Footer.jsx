@@ -1,61 +1,103 @@
 import React from "react";
-import { Link } from "react-router-dom"; 
+import { Link } from "react-router-dom";
 
 export default function Footer() {
   return (
-    <footer className="relative w-full border-t border-gray-800 bg-gray-900/95 backdrop-blur-xl text-white">
-      {/* Gradient accent line */}
-      <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-red-500 to-transparent opacity-50"></div>
-      
-      <div className="max-w-7xl mx-auto px-4 py-6">
-        <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
-          {/* Copyright */}
-          <div className="flex items-center space-x-3">
-            <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-gradient-to-br from-red-500 to-orange-500 shadow-lg">
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-              </svg>
-            </div>
-            <span className="text-sm text-gray-400">
-              © {new Date().getFullYear()} <span className="font-semibold bg-gradient-to-r from-red-500 to-orange-500 bg-clip-text text-transparent">DisasterEye</span>. All rights reserved.
-            </span>
+    <footer className="bg-gYellow dark:bg-neoBlack border-t-4 border-neoBlack dark:border-neoWhite transition-colors duration-300">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+          {/* Brand Column */}
+          <div className="col-span-1 md:col-span-1">
+            <Link to="/" className="flex items-center gap-2 mb-4 group">
+              <span className="text-2xl font-black text-neoBlack dark:text-neoWhite tracking-tighter group-hover:text-gBlue transition-colors">
+                DisasterWatch
+              </span>
+            </Link>
+            <p className="text-neoBlack dark:text-neoWhite font-medium text-sm leading-relaxed border-l-4 border-neoBlack dark:border-neoWhite pl-4">
+              Real-time disaster intelligence platform empowering communities with predictive analytics and live alerts.
+            </p>
           </div>
 
-          {/* Links Section - UPDATED */}
-          <div className="flex space-x-6">
-            <Link 
-              to="/about"
-              className="text-sm text-gray-400 hover:text-red-500 transition-colors duration-200"
-            >
-              About
-            </Link>
-            <Link 
-              to="/contact"
-              className="text-sm text-gray-400 hover:text-orange-500 transition-colors duration-200"
-            >
-              Contact
-            </Link>
-            <Link 
-              to="/docs" 
-              className="text-sm text-gray-400 hover:text-pink-500 transition-colors duration-200"
-            >
-              Docs
-            </Link>
-            <Link 
-              to="/privacy"
-              className="text-sm text-gray-400 hover:text-red-500 transition-colors duration-200"
-            >
-              Privacy
-            </Link>
+          {/* Quick Links */}
+          <div>
+            <h3 className="text-lg font-black text-neoBlack dark:text-gBlue uppercase tracking-wider mb-4 border-b-2 border-neoBlack dark:border-neoWhite inline-block">
+              Platform
+            </h3>
+            <ul className="space-y-3">
+              <li>
+                <Link to="/dashboard" className="text-neoBlack dark:text-neoWhite font-bold hover:text-white hover:bg-neoBlack dark:hover:bg-white dark:hover:text-neoBlack px-1 transition-all">
+                  Live Dashboard
+                </Link>
+              </li>
+              <li>
+                <Link to="/" className="text-neoBlack dark:text-neoWhite font-bold hover:text-white hover:bg-neoBlack dark:hover:bg-white dark:hover:text-neoBlack px-1 transition-all">
+                  Home
+                </Link>
+              </li>
+              <li>
+                <Link to="/docs" className="text-neoBlack dark:text-neoWhite font-bold hover:text-white hover:bg-neoBlack dark:hover:bg-white dark:hover:text-neoBlack px-1 transition-all">
+                  Documentation
+                </Link>
+              </li>
+            </ul>
+          </div>
+
+          {/* Legal */}
+          <div>
+            <h3 className="text-lg font-black text-neoBlack dark:text-gRed uppercase tracking-wider mb-4 border-b-2 border-neoBlack dark:border-neoWhite inline-block">
+              Legal
+            </h3>
+            <ul className="space-y-3">
+              <li>
+                <Link to="/privacy" className="text-neoBlack dark:text-neoWhite font-bold hover:text-white hover:bg-neoBlack dark:hover:bg-white dark:hover:text-neoBlack px-1 transition-all">
+                  Privacy Policy
+                </Link>
+              </li>
+              <li>
+                <Link to="/terms" className="text-neoBlack dark:text-neoWhite font-bold hover:text-white hover:bg-neoBlack dark:hover:bg-white dark:hover:text-neoBlack px-1 transition-all">
+                  Terms of Service
+                </Link>
+              </li>
+              <li>
+                <Link to="/contact" className="text-neoBlack dark:text-neoWhite font-bold hover:text-white hover:bg-neoBlack dark:hover:bg-white dark:hover:text-neoBlack px-1 transition-all">
+                  Contact Us
+                </Link>
+              </li>
+            </ul>
+          </div>
+
+          {/* Socials */}
+          <div>
+            <h3 className="text-lg font-black text-neoBlack dark:text-gGreen uppercase tracking-wider mb-4 border-b-2 border-neoBlack dark:border-neoWhite inline-block">
+              Connect
+            </h3>
+            <div className="flex space-x-4">
+              <a href="#" className="p-2 bg-white border-2 border-neoBlack shadow-neo hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all text-neoBlack">
+                <span className="sr-only">Twitter</span>
+                <svg className="h-6 w-6" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M8.29 20.251c7.547 0 11.675-6.253 11.675-11.675 0-.178 0-.355-.012-.53A8.348 8.348 0 0022 5.92a8.19 8.19 0 01-2.357.646 4.118 4.118 0 001.804-2.27 8.224 8.224 0 01-2.605.996 4.107 4.107 0 00-6.993 3.743 11.65 11.65 0 01-8.457-4.287 4.106 4.106 0 001.27 5.477A4.072 4.072 0 012.8 9.713v.052a4.105 4.105 0 003.292 4.022 4.095 4.095 0 01-1.853.07 4.108 4.108 0 003.834 2.85A8.233 8.233 0 012 18.407a11.616 11.616 0 006.29 1.84" />
+                </svg>
+              </a>
+              <a href="#" className="p-2 bg-white border-2 border-neoBlack shadow-neo hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all text-neoBlack">
+                <span className="sr-only">GitHub</span>
+                <svg className="h-6 w-6" fill="currentColor" viewBox="0 0 24 24">
+                  <path fillRule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" clipRule="evenodd" />
+                </svg>
+              </a>
+            </div>
           </div>
         </div>
 
-        {/* Optional: Social Links or Additional Info */}
-        <div className="mt-4 pt-4 border-t border-gray-800/50 text-center">
-          <p className="text-xs text-gray-500">
-            Real-time disaster monitoring and intelligence platform
+        <div className="mt-12 pt-8 border-t-4 border-neoBlack dark:border-neoWhite flex flex-col md:flex-row justify-between items-center">
+          <p className="text-neoBlack dark:text-neoWhite font-bold text-sm">
+            &copy; {new Date().getFullYear()} DisasterWatch. All rights reserved.
           </p>
+          <div className="flex space-x-6 mt-4 md:mt-0">
+            <span className="flex items-center text-neoBlack dark:text-neoWhite font-bold text-sm bg-white dark:bg-neoBlack px-3 py-1 border-2 border-neoBlack dark:border-neoWhite shadow-neo-sm">
+              <span className="w-3 h-3 bg-gGreen border-2 border-neoBlack rounded-full mr-2 animate-pulse"></span>
+              System Operational
+            </span>
+          </div>
         </div>
       </div>
     </footer>

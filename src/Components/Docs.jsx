@@ -1,133 +1,137 @@
-import React, { useState } from "react";
+import React from "react";
 
 export default function Docs() {
-  const [activeSection, setActiveSection] = useState("intro");
-
-  const sections = [
-    { id: "intro", label: "Introduction" },
-    { id: "auth", label: "Authentication" },
-    { id: "reports", label: "Disaster Reports" },
-    { id: "sources", label: "Data Sources" },
-  ];
+  const scrollToSection = (id) => {
+    const element = document.getElementById(id);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white relative">
-      <div className="max-w-7xl mx-auto px-4 py-12 flex flex-col md:flex-row gap-8">
-        
-        {/* Sidebar Navigation */}
-        <aside className="md:w-64 flex-shrink-0">
-          <div className="sticky top-24 p-4 rounded-2xl bg-gray-800/50 backdrop-blur-xl border border-gray-700">
-            <h3 className="text-lg font-bold mb-4 text-red-500">Documentation</h3>
-            <nav className="space-y-2">
-              {sections.map((section) => (
-                <button
-                  key={section.id}
-                  onClick={() => setActiveSection(section.id)}
-                  className={`w-full text-left px-4 py-2 rounded-lg text-sm transition-all ${
-                    activeSection === section.id
-                      ? "bg-gray-700 text-white font-medium shadow-lg"
-                      : "text-gray-400 hover:bg-gray-700/50 hover:text-white"
-                  }`}
-                >
-                  {section.label}
-                </button>
-              ))}
-            </nav>
+    <div className="min-h-screen bg-neoWhite dark:bg-neoDark flex flex-col md:flex-row">
+      {/* Sidebar Navigation */}
+      <aside className="w-full md:w-64 bg-white dark:bg-neoDark border-b-4 md:border-b-0 md:border-r-4 border-neoBlack dark:border-neoWhite sticky top-20 h-auto md:h-[calc(100vh-80px)] overflow-y-auto z-10">
+        <div className="p-6">
+          <h3 className="text-xl font-black text-neoBlack dark:text-neoWhite uppercase mb-6 border-b-4 border-gYellow inline-block">
+            Contents
+          </h3>
+          <nav className="space-y-2">
+            {['Architecture', 'API Reference', 'Tech Stack'].map((item) => (
+              <button
+                key={item}
+                onClick={() => scrollToSection(item.toLowerCase().replace(' ', '-'))}
+                className="block w-full text-left px-4 py-2 font-bold text-neoBlack dark:text-neoWhite border-2 border-transparent hover:border-neoBlack hover:bg-gYellow hover:shadow-neo-sm transition-all"
+              >
+                {item}
+              </button>
+            ))}
+          </nav>
+        </div>
+      </aside>
+
+      {/* Main Content */}
+      <main className="flex-1 p-8 md:p-12 max-w-5xl mx-auto">
+
+        {/* Architecture Section */}
+        <section id="architecture" className="mb-16">
+          <h1 className="text-4xl md:text-5xl font-black text-neoBlack dark:text-neoWhite mb-8">
+            <span className="border-b-8 border-gBlue">System Architecture</span>
+          </h1>
+
+          <div className="bg-white dark:bg-gray-800 border-4 border-neoBlack dark:border-neoWhite shadow-neo p-8 mb-8">
+            <p className="text-lg font-medium text-neoBlack dark:text-white leading-relaxed mb-6">
+              The DisasterWatch system operates on a high-performance microservices architecture designed for speed and reliability.
+            </p>
+
+            <div className="space-y-4">
+              <div className="flex items-center p-4 bg-gray-100 dark:bg-gray-700 border-2 border-neoBlack">
+                <span className="font-black text-gRed mr-4">01.</span>
+                <span className="font-bold text-neoBlack dark:text-white">Python Scraper</span>
+                <span className="mx-4 text-gray-400">→</span>
+                <span className="text-sm text-gray-600 dark:text-gray-300">Collects raw data from Google RSS & Social Media</span>
+              </div>
+              <div className="flex items-center p-4 bg-gray-100 dark:bg-gray-700 border-2 border-neoBlack">
+                <span className="font-black text-gYellow mr-4">02.</span>
+                <span className="font-bold text-neoBlack dark:text-white">Flask ML Engine</span>
+                <span className="mx-4 text-gray-400">→</span>
+                <span className="text-sm text-gray-600 dark:text-gray-300">BERT/RoBERTa models classify severity & type</span>
+              </div>
+              <div className="flex items-center p-4 bg-gray-100 dark:bg-gray-700 border-2 border-neoBlack">
+                <span className="font-black text-gGreen mr-4">03.</span>
+                <span className="font-bold text-neoBlack dark:text-white">MongoDB</span>
+                <span className="mx-4 text-gray-400">→</span>
+                <span className="text-sm text-gray-600 dark:text-gray-300">Stores GeoJSON data for spatial queries</span>
+              </div>
+              <div className="flex items-center p-4 bg-gray-100 dark:bg-gray-700 border-2 border-neoBlack">
+                <span className="font-black text-gBlue mr-4">04.</span>
+                <span className="font-bold text-neoBlack dark:text-white">Node.js Backend</span>
+                <span className="mx-4 text-gray-400">→</span>
+                <span className="text-sm text-gray-600 dark:text-gray-300">Serves API & Real-time Socket.io events</span>
+              </div>
+            </div>
           </div>
-        </aside>
+        </section>
 
-        {/* Main Content */}
-        <main className="flex-1">
-          <div className="bg-gray-800/30 rounded-3xl p-8 border border-gray-700/50 backdrop-blur-sm">
-            
-            {activeSection === "intro" && (
-              <div className="space-y-6 animate-fadeIn">
-                <h1 className="text-4xl font-bold">Introduction</h1>
-                <p className="text-gray-300 text-lg leading-relaxed">
-                  Welcome to the <span className="text-orange-500 font-semibold">DisasterEye</span> Developer Documentation. 
-                  Our platform aggregates real-time disaster intelligence from social media, news APIs, and direct user reports.
-                </p>
-                <div className="p-4 bg-gray-900/80 rounded-xl border-l-4 border-orange-500">
-                  <p className="text-sm text-gray-400">
-                    <strong>Note:</strong> Access to the live API requires an API Key. Please contact support to request access.
-                  </p>
-                </div>
-              </div>
-            )}
+        {/* API Reference Section */}
+        <section id="api-reference" className="mb-16">
+          <h2 className="text-3xl md:text-4xl font-black text-neoBlack dark:text-neoWhite mb-8">
+            <span className="border-b-8 border-gRed">API Reference</span>
+          </h2>
 
-            {activeSection === "auth" && (
-              <div className="space-y-6 animate-fadeIn">
-                <h1 className="text-4xl font-bold">Authentication</h1>
-                <p className="text-gray-300">
-                  All API requests must include a valid JWT token in the header.
-                </p>
-                
-                <div className="bg-gray-950 rounded-xl p-4 border border-gray-800 font-mono text-sm overflow-x-auto">
-                  <div className="text-gray-500 mb-2">// Header format</div>
-                  <div className="text-purple-400">Authorization: <span className="text-green-400">Bearer &lt;your_jwt_token&gt;</span></div>
-                </div>
+          <div className="mb-8">
+            <h3 className="text-xl font-bold text-neoBlack dark:text-white mb-4 flex items-center">
+              <span className="bg-gBlue text-white px-2 py-1 text-sm border-2 border-neoBlack shadow-neo-sm mr-3">POST</span>
+              /ml/predict
+            </h3>
+            <p className="text-gray-600 dark:text-gray-300 mb-4">
+              Submit raw text for disaster classification and severity analysis.
+            </p>
 
-                <h3 className="text-xl font-semibold mt-8">Login Endpoint</h3>
-                <div className="bg-gray-950 rounded-xl p-4 border border-gray-800 font-mono text-sm">
-                  <span className="text-orange-500 font-bold">POST</span> <span className="text-gray-300">/api/auth/login</span>
-                </div>
-              </div>
-            )}
+            <div className="bg-neoBlack border-4 border-neoBlack shadow-neo p-6 overflow-x-auto">
+              <pre className="font-mono text-sm">
+                <code className="text-gGreen">
+                  {`// Request Body
+{
+  "text": "Massive flooding reported in downtown Mumbai after heavy rains.",
+  "source": "twitter"
+}
 
-            {activeSection === "reports" && (
-              <div className="space-y-6 animate-fadeIn">
-                <h1 className="text-4xl font-bold">Disaster Reports</h1>
-                <p className="text-gray-300">
-                  Retrieve validated disaster events with geospatial data.
-                </p>
-
-                <h3 className="text-xl font-semibold mt-4">Get All Reports</h3>
-                <div className="bg-gray-950 rounded-xl p-4 border border-gray-800 font-mono text-sm mb-4">
-                  <span className="text-green-500 font-bold">GET</span> <span className="text-gray-300">/api/reports</span>
-                </div>
-
-                <h3 className="text-xl font-semibold mt-4">Response Object</h3>
-                <pre className="bg-gray-950 rounded-xl p-4 border border-gray-800 font-mono text-xs text-gray-300 overflow-x-auto">
-{`[
-  {
-    "_id": "654a...",
-    "title": "Flood in Downtown",
-    "type": "Flood",
-    "severity": "High",
-    "location": "28.61, 77.20",
-    "reporter": { "fullname": "John Doe" }
+// Response
+{
+  "disaster_type": "Flood",
+  "severity": "High",
+  "confidence": 0.98,
+  "location": {
+    "lat": 19.0760,
+    "lon": 72.8777
   }
-]`}
-                </pre>
-              </div>
-            )}
-
-            {activeSection === "sources" && (
-              <div className="space-y-6 animate-fadeIn">
-                <h1 className="text-4xl font-bold">Data Sources</h1>
-                <p className="text-gray-300">
-                  Our intelligence engine fuses data from multiple streams to ensure accuracy.
-                </p>
-                <ul className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-                  <li className="p-4 bg-gray-900 rounded-xl border border-gray-700">
-                    <div className="font-bold text-white mb-1">Social Media</div>
-                    <div className="text-sm text-gray-400">Twitter/X, Reddit scraping for real-time keywords.</div>
-                  </li>
-                  <li className="p-4 bg-gray-900 rounded-xl border border-gray-700">
-                    <div className="font-bold text-white mb-1">News APIs</div>
-                    <div className="text-sm text-gray-400">Global news aggregators for confirmed reports.</div>
-                  </li>
-                  <li className="p-4 bg-gray-900 rounded-xl border border-gray-700">
-                    <div className="font-bold text-white mb-1">User Reports</div>
-                    <div className="text-sm text-gray-400">Direct on-ground reporting via our Dashboard.</div>
-                  </li>
-                </ul>
-              </div>
-            )}
-
+}`}
+                </code>
+              </pre>
+            </div>
           </div>
-        </main>
-      </div>
+        </section>
+
+        {/* Tech Stack Section */}
+        <section id="tech-stack" className="mb-16">
+          <h2 className="text-3xl md:text-4xl font-black text-neoBlack dark:text-neoWhite mb-8">
+            <span className="border-b-8 border-gGreen">Tech Stack</span>
+          </h2>
+
+          <div className="flex flex-wrap gap-4">
+            {['React', 'Vite', 'Tailwind CSS', 'Node.js', 'Express', 'Socket.io', 'Python', 'Flask', 'MongoDB', 'Leaflet', 'BERT'].map((tech) => (
+              <span
+                key={tech}
+                className="px-4 py-2 font-bold text-neoBlack bg-white border-2 border-neoBlack shadow-neo hover:-translate-y-1 transition-transform cursor-default"
+              >
+                {tech}
+              </span>
+            ))}
+          </div>
+        </section>
+
+      </main>
     </div>
   );
 }

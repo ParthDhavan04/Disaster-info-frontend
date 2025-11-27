@@ -1,69 +1,41 @@
 import React from "react";
-import { Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
+import Navbar from "./Components/Navbar";
+import Footer from "./Components/Footer";
+import Home from "./Components/Home";
+import Dashboard from "./Components/Dashboard";
+import Login from "./Components/Login";
+import Signup from "./Components/Signup";
+import About from "./Components/About";
+import Docs from "./Components/Docs";
+import Contact from "./Components/Contact";
+import Privacy from "./Components/Privacy";
+import PrivateRoute from "./Components/PrivateRoute";
 
-import Navbar from "./Components/Navbar.jsx";
-import Footer from "./Components/Footer.jsx";
-import Home from "./Components/Home.jsx";
-import Login from "./Components/Login.jsx";
-import Signup from "./Components/Signup.jsx";
-import Dashboard from "./Components/Dashboard.jsx";
-// Import the new pages
-import About from "./Components/About.jsx";
-import Contact from "./Components/Contact.jsx";
-import Docs from "./Components/Docs.jsx";        // <-- Added
-import Privacy from "./Components/Privacy.jsx";  // <-- Added
-
-/* Simple auth helpers using localStorage token */
-export function setAuthToken(token) {
-  localStorage.setItem("token", token);
-}
-
-export function clearAuthToken() {
-  localStorage.removeItem("token");
-}
-
-const isAuthenticated = () => !!localStorage.getItem("token");
-
-/* Protects private routes */
-function Protected({ children }) {
-  if (!isAuthenticated()) return <Navigate to="/login" replace />;
-  return children;
-}
-
-export default function App() {
+function App() {
   return (
-    <div className="min-h-screen flex flex-col bg-page text-[var(--text)]">
+    <div className="flex flex-col min-h-screen">
       <Navbar />
-
-      <main className="flex-grow">
+      <div className="flex-grow">
         <Routes>
-          {/* Public pages */}
+          {/* Public Routes */}
           <Route path="/" element={<Home />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/contact" element={<Contact />} />
-          <Route path="/docs" element={<Docs />} />       {/* <-- Added */}
-          <Route path="/privacy" element={<Privacy />} /> {/* <-- Added */}
-
-          {/* Auth routes */}
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/docs" element={<Docs />} />
+          <Route path="/contact" element={<Contact />} />
+          <Route path="/privacy" element={<Privacy />} />
 
-          {/* Protected dashboard route */}
-          <Route
-            path="/dashboard"
-            element={
-              <Protected>
-                <Dashboard />
-              </Protected>
-            }
-          />
-
-          {/* Fallback */}
-          <Route path="*" element={<Navigate to="/" replace />} />
+          {/* Protected Routes */}
+          <Route element={<PrivateRoute />}>
+            <Route path="/dashboard" element={<Dashboard />} />
+          </Route>
         </Routes>
-      </main>
-
+      </div>
       <Footer />
     </div>
   );
 }
+
+export default App;

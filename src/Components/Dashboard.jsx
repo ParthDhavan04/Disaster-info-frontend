@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import io from "socket.io-client";
@@ -8,83 +8,169 @@ const SOCKET_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:4000";
 export default function Dashboard() {
   const [events, setEvents] = useState([]);
   const [filter, setFilter] = useState("all");
+  const mapRef = useRef(null);
+  const [isDark, setIsDark] = useState(document.documentElement.classList.contains('dark'));
+  const [userRole, setUserRole] = useState('user');
 
+  // Listen for theme changes to update map tiles
   useEffect(() => {
-    // load initial demo events (replace with API call later)
-    setEvents([
-      { id: "d1", type: "Flood", place: "Patna", lat:25.6, lon:85.1, severity: "High", time: new Date().toISOString() },
-      { id: "d2", type: "Wildfire", place: "Rishikesh", lat:30.1, lon:78.3, severity: "Medium", time: new Date().toISOString() },
-      { id: "d3", type: "Earthquake", place: "Jaipur", lat:26.9, lon:75.8, severity: "Low", time: new Date().toISOString() }
-    ]);
-
-    // connect socket (if backend available)
-    let socket;
-    try {
-      socket = io(SOCKET_URL);
-      socket.on("new_event", evt => setEvents(prev => [evt, ...prev]));
-    } catch (err) {
-      console.warn("Socket not available", err.message);
-    }
-    return () => socket && socket.disconnect();
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (mutation.attributeName === 'class') {
+          setIsDark(document.documentElement.classList.contains('dark'));
+        }
+      });
+    });
+    observer.observe(document.documentElement, { attributes: true });
+    return () => observer.disconnect();
   }, []);
 
+  // Check user role on mount
   useEffect(() => {
-    const map = L.map("dashboard-map", { 
-      preferCanvas: true, 
-      attributionControl: false,
-      zoomControl: false
-    }).setView([20.6, 78.9], 5);
-    
-    // Dark theme tile layer
-    L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
+    const userStr = localStorage.getItem('user');
+    if (userStr) {
+      try {
+        const user = JSON.parse(userStr);
+        setUserRole(user.role || 'user');
+      } catch (e) {
+        console.error("Error parsing user from localStorage", e);
+      }
+    }
+  }, []);
+
+  const transformEvent = (ev) => ({
+    id: ev._id,
+    type: ev.disaster_type || "Unknown",
+    place: ev.location_text || "Unknown Location",
+    severity: ev.severity || "Low",
+    time: ev.timestamp || new Date().toISOString(),
+    lat: (ev.location && ev.location.coordinates) ? ev.location.coordinates[1] : null,
+    lon: (ev.location && ev.location.coordinates) ? ev.location.coordinates[0] : null
+  });
+
+  useEffect(() => {
+    const fetchAlerts = async () => {
+      try {
+        const response = await fetch(`${SOCKET_URL}/api/alerts`);
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        const data = await response.json();
+        console.log("Loaded events:", data);
+        setEvents(data.map(transformEvent));
+      } catch (error) {
+        console.error("Error fetching alerts:", error);
+      }
+    };
+
+    fetchAlerts();
+
+    const socket = io(SOCKET_URL);
+
+    socket.on("connect", () => console.log("Connected to socket server"));
+    socket.on("connect_error", (err) => console.error("Socket connection error:", err));
+
+    socket.on("new_event", (evt) => {
+      console.log("New event received:", evt);
+      const transformedEvent = transformEvent(evt);
+      setEvents((prev) => [transformedEvent, ...prev]);
+
+      if (transformedEvent.lat && transformedEvent.lon && mapRef.current) {
+        mapRef.current.flyTo([transformedEvent.lat, transformedEvent.lon], 10, { duration: 2.5 });
+      }
+    });
+
+    return () => socket.disconnect();
+  }, []);
+
+  // Map Initialization & Tile Layer Update
+  useEffect(() => {
+    if (!events.length) return;
+    const mapContainer = document.getElementById("dashboard-map");
+    if (!mapContainer) return;
+
+    if (!mapRef.current) {
+      const map = L.map("dashboard-map", {
+        preferCanvas: true,
+        attributionControl: false,
+        zoomControl: false
+      }).setView([20.6, 78.9], 5);
+
+      L.control.zoom({ position: 'topright' }).addTo(map);
+      mapRef.current = map;
+      window._disasterMap = map;
+    }
+
+    const map = mapRef.current;
+
+    // Remove existing tile layers
+    map.eachLayer((layer) => {
+      if (layer instanceof L.TileLayer) {
+        map.removeLayer(layer);
+      }
+    });
+
+    // Add new tile layer based on theme
+    const tileUrl = isDark
+      ? "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+      : "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png";
+
+    L.tileLayer(tileUrl, {
       attribution: '&copy; OpenStreetMap contributors &copy; CARTO',
       subdomains: 'abcd',
       maxZoom: 19
     }).addTo(map);
-    
-    // Add custom zoom control in top-right
-    L.control.zoom({ position: 'topright' }).addTo(map);
-    
-    window._disasterMap = map;
-    return () => map.remove();
-  }, []);
 
+  }, [events.length === 0, isDark]); // Re-run when theme changes
+
+  // Markers Update
   useEffect(() => {
-    const map = window._disasterMap;
+    const map = mapRef.current;
     if (!map) return;
+
     if (window._dashMarkers) window._dashMarkers.forEach(m => m.remove());
     window._dashMarkers = [];
-    
+
     const filteredEvents = filter === "all" ? events : events.filter(e => e.severity === filter);
-    
+
     filteredEvents.forEach(e => {
-      if (e.lat && e.lon) {
+      if (e.lat !== null && e.lon !== null) {
         const colors = {
-          High: "#EF4444",
-          Medium: "#F97316",
-          Low: "#EAB308"
+          High: "#EA4335",   // gRed
+          Medium: "#FBBC05", // gYellow
+          Low: "#4285F4"     // gBlue
         };
-        
+
         const marker = L.circleMarker([e.lat, e.lon], {
-          radius: e.severity === "High" ? 10 : e.severity === "Medium" ? 8 : 6,
-          fillColor: colors[e.severity] || "#6B7280",
-          color: "#fff",
+          radius: e.severity === "High" ? 12 : e.severity === "Medium" ? 10 : 8,
+          fillColor: colors[e.severity] || "#999",
+          color: "#000",
           weight: 2,
-          fillOpacity: 0.8
+          fillOpacity: 1
         }).addTo(map);
-        
+
         marker.bindPopup(`
-          <div style="background: #1F2937; color: white; padding: 8px; border-radius: 8px;">
-            <b style="color: ${colors[e.severity]}; font-size: 14px;">${e.type}</b><br/>
-            <span style="font-size: 12px; color: #D1D5DB;">${e.place}</span><br/>
-            <span style="font-size: 11px; color: #9CA3AF;">Severity: ${e.severity}</span>
+          <div style="font-family: 'Space Grotesk', sans-serif; padding: 4px;">
+            <b style="color: ${colors[e.severity]}; font-size: 16px; text-transform: uppercase;">${e.type}</b><br/>
+            <div style="margin-top: 4px; font-size: 14px; color: #000; font-weight: 500;">${e.place}</div>
+            <div style="margin-top: 2px; font-size: 12px; color: #666;">Severity: ${e.severity}</div>
           </div>
         `);
-        
+
         window._dashMarkers.push(marker);
       }
     });
   }, [events, filter]);
+
+  const handleEventClick = (lat, lon) => {
+    if (lat && lon && mapRef.current) {
+      mapRef.current.flyTo([lat, lon], 10, { duration: 2.5 });
+    }
+  };
+
+  const handleDeleteEvent = (e, id) => {
+    e.stopPropagation(); // Prevent triggering the card click
+    console.log(`Deleting event ID: ${id}`);
+    // Future: Add API call to delete event
+  };
 
   const filteredEvents = filter === "all" ? events : events.filter(e => e.severity === filter);
 
@@ -95,189 +181,144 @@ export default function Dashboard() {
     low: events.filter(e => e.severity === "Low").length
   };
 
+  if (!events.length) return (
+    <div className="min-h-screen bg-neoWhite dark:bg-neoDark flex flex-col items-center justify-center">
+      <div className="w-16 h-16 border-4 border-neoBlack border-t-gBlue rounded-full animate-spin mb-6"></div>
+      <p className="text-neoBlack dark:text-neoWhite font-bold text-xl animate-pulse">INITIALIZING SYSTEM...</p>
+    </div>
+  );
+
   return (
-    <div className="min-h-screen bg-gray-900 py-6">
-      <div className="max-w-7xl mx-auto px-6">
-        {/* Header Stats */}
-        <div className="mb-6 grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div className="bg-gray-800/60 backdrop-blur-xl rounded-xl p-4 border border-gray-700">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-400">Total Events</p>
-                <p className="text-2xl font-bold text-white mt-1">{stats.total}</p>
-              </div>
-              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500/20 to-cyan-500/20 border border-blue-500/30 flex items-center justify-center">
-                <svg className="w-6 h-6 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                </svg>
-              </div>
-            </div>
+    <div className="min-h-[calc(100vh-80px)] bg-neoWhite dark:bg-neoDark flex flex-col md:flex-row overflow-hidden relative">
+      {/* Sidebar - Neo-Brutalist */}
+      <aside className="w-full md:w-96 bg-white dark:bg-neoDark border-r-4 border-neoBlack dark:border-neoWhite flex flex-col z-20 shadow-neo lg:h-[calc(100vh-80px)]">
+        {/* Header */}
+        <div className="p-6 border-b-4 border-neoBlack dark:border-neoWhite bg-gYellow">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-2xl font-black text-neoBlack flex items-center tracking-tight">
+              <span className="w-4 h-4 rounded-full bg-gRed border-2 border-neoBlack mr-3 animate-pulse"></span>
+              LIVE FEED
+            </h2>
+            <span className="text-sm font-bold text-neoBlack bg-white px-3 py-1 border-2 border-neoBlack shadow-neo-sm">
+              {filteredEvents.length} EVENTS
+            </span>
           </div>
 
-          <div className="bg-gray-800/60 backdrop-blur-xl rounded-xl p-4 border border-red-700/50">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-400">High Severity</p>
-                <p className="text-2xl font-bold text-red-400 mt-1">{stats.high}</p>
-              </div>
-              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-red-500/20 to-red-600/20 border border-red-500/30 flex items-center justify-center">
-                <svg className="w-6 h-6 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                </svg>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-gray-800/60 backdrop-blur-xl rounded-xl p-4 border border-orange-700/50">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-400">Medium Severity</p>
-                <p className="text-2xl font-bold text-orange-400 mt-1">{stats.medium}</p>
-              </div>
-              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-orange-500/20 to-orange-600/20 border border-orange-500/30 flex items-center justify-center">
-                <svg className="w-6 h-6 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-gray-800/60 backdrop-blur-xl rounded-xl p-4 border border-yellow-700/50">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-400">Low Severity</p>
-                <p className="text-2xl font-bold text-yellow-400 mt-1">{stats.low}</p>
-              </div>
-              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-yellow-500/20 to-yellow-600/20 border border-yellow-500/30 flex items-center justify-center">
-                <svg className="w-6 h-6 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </div>
-            </div>
+          {/* Filters */}
+          <div className="flex flex-wrap gap-2">
+            {['all', 'High', 'Medium', 'Low'].map((f) => (
+              <button
+                key={f}
+                onClick={() => setFilter(f)}
+                className={`px-3 py-1.5 text-sm font-bold uppercase border-2 border-neoBlack transition-all shadow-neo-sm active:translate-x-[2px] active:translate-y-[2px] active:shadow-none ${filter === f
+                    ? 'bg-neoBlack text-white'
+                    : 'bg-white text-neoBlack hover:bg-gray-100'
+                  }`}
+              >
+                {f}
+              </button>
+            ))}
           </div>
         </div>
 
-        {/* Main Content */}
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-          {/* Sidebar */}
-          <aside className="lg:col-span-1">
-            <div className="bg-gray-800/60 backdrop-blur-xl rounded-2xl border border-gray-700 shadow-2xl overflow-hidden">
-              {/* Header */}
-              <div className="p-4 border-b border-gray-700 bg-gray-900/50">
-                <div className="flex items-center justify-between mb-3">
-                  <h3 className="text-lg font-semibold text-white flex items-center">
-                    <span className="w-2 h-2 rounded-full bg-green-500 mr-2 animate-pulse"></span>
-                    Live Feed
-                  </h3>
-                  <span className="text-xs text-gray-400">{filteredEvents.length} events</span>
+        {/* Event List */}
+        <div className="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar bg-neoWhite dark:bg-neoDark">
+          {filteredEvents.map(ev => (
+            <div
+              key={ev.id}
+              onClick={() => handleEventClick(ev.lat, ev.lon)}
+              className={`p-4 border-2 border-neoBlack shadow-neo hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all cursor-pointer bg-white dark:bg-neoDark group relative ${ev.severity === 'High' ? 'border-l-8 border-l-gRed' :
+                  ev.severity === 'Medium' ? 'border-l-8 border-l-gYellow' :
+                    'border-l-8 border-l-gBlue'
+                }`}
+            >
+              <div className="flex justify-between items-start mb-2">
+                <div className="flex items-center space-x-2">
+                  <span className={`font-black text-lg tracking-tight ${ev.severity === 'High' ? 'text-gRed' :
+                      ev.severity === 'Medium' ? 'text-gYellow' :
+                        'text-gBlue'
+                    }`}>{ev.type}</span>
                 </div>
-
-                {/* Filter Buttons */}
-                <div className="flex flex-wrap gap-2">
-                  <button
-                    onClick={() => setFilter("all")}
-                    className={`px-3 py-1 rounded-lg text-xs font-medium transition-all ${
-                      filter === "all"
-                        ? "bg-gradient-to-r from-red-500 to-orange-500 text-white"
-                        : "bg-gray-700 text-gray-300 hover:bg-gray-600"
-                    }`}
-                  >
-                    All
-                  </button>
-                  <button
-                    onClick={() => setFilter("High")}
-                    className={`px-3 py-1 rounded-lg text-xs font-medium transition-all ${
-                      filter === "High"
-                        ? "bg-red-500 text-white"
-                        : "bg-gray-700 text-gray-300 hover:bg-gray-600"
-                    }`}
-                  >
-                    High
-                  </button>
-                  <button
-                    onClick={() => setFilter("Medium")}
-                    className={`px-3 py-1 rounded-lg text-xs font-medium transition-all ${
-                      filter === "Medium"
-                        ? "bg-orange-500 text-white"
-                        : "bg-gray-700 text-gray-300 hover:bg-gray-600"
-                    }`}
-                  >
-                    Medium
-                  </button>
-                  <button
-                    onClick={() => setFilter("Low")}
-                    className={`px-3 py-1 rounded-lg text-xs font-medium transition-all ${
-                      filter === "Low"
-                        ? "bg-yellow-500 text-white"
-                        : "bg-gray-700 text-gray-300 hover:bg-gray-600"
-                    }`}
-                  >
-                    Low
-                  </button>
-                </div>
-              </div>
-
-              {/* Event List */}
-              <div className="max-h-[calc(100vh-350px)] overflow-auto p-4 space-y-3">
-                {filteredEvents.length === 0 ? (
-                  <div className="text-center py-8 text-gray-500">
-                    <svg className="w-12 h-12 mx-auto mb-2 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
-                    </svg>
-                    <p className="text-sm">No events match filter</p>
-                  </div>
-                ) : (
-                  filteredEvents.map(ev => (
-                    <div
-                      key={ev.id}
-                      className="p-4 bg-gray-900/50 backdrop-blur-sm rounded-xl border border-gray-700 hover:border-gray-600 transition-all cursor-pointer group"
+                <div className="flex items-center space-x-2">
+                  <span className="text-xs font-bold bg-neoBlack text-white px-2 py-1">
+                    {ev.severity.toUpperCase()}
+                  </span>
+                  {/* Admin Delete Button */}
+                  {userRole === 'admin' && (
+                    <button
+                      onClick={(e) => handleDeleteEvent(e, ev.id)}
+                      className="p-1 bg-white border-2 border-neoBlack hover:bg-gRed hover:text-white transition-colors shadow-neo-sm active:shadow-none active:translate-x-[1px] active:translate-y-[1px]"
+                      title="Delete Event"
                     >
-                      <div className="flex justify-between items-start mb-2">
-                        <div className="flex items-center space-x-2">
-                          <div className={`w-2 h-2 rounded-full ${
-                            ev.severity === "High" ? "bg-red-500" :
-                            ev.severity === "Medium" ? "bg-orange-500" : "bg-yellow-500"
-                          }`}></div>
-                          <div className="font-semibold text-white text-sm">{ev.type}</div>
-                        </div>
-                        <div className={`text-xs px-2 py-1 rounded-md font-medium ${
-                          ev.severity === "High"
-                            ? "bg-red-500/20 text-red-400 border border-red-500/30"
-                            : ev.severity === "Medium"
-                            ? "bg-orange-500/20 text-orange-400 border border-orange-500/30"
-                            : "bg-yellow-500/20 text-yellow-400 border border-yellow-500/30"
-                        }`}>
-                          {ev.severity}
-                        </div>
-                      </div>
-                      <div className="text-xs text-gray-400 flex items-center mb-2">
-                        <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                        </svg>
-                        {ev.place}
-                      </div>
-                      <div className="text-xs text-gray-500 flex items-center">
-                        <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        {new Date(ev.time).toLocaleString()}
-                      </div>
-                    </div>
-                  ))
-                )}
+                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                      </svg>
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              <div className="text-sm text-neoBlack dark:text-neoWhite font-medium mb-2 flex items-center">
+                <span className="truncate">{ev.place}</span>
+              </div>
+
+              <div className="text-xs font-mono text-gray-500 dark:text-gray-400">
+                {new Date(ev.time).toLocaleString()}
               </div>
             </div>
-          </aside>
-
-          {/* Map */}
-          <section className="lg:col-span-3">
-            <div className="bg-gray-800/60 backdrop-blur-xl rounded-2xl border border-gray-700 shadow-2xl overflow-hidden">
-              <div className="h-[calc(100vh-250px)] w-full" id="dashboard-map"></div>
-            </div>
-          </section>
+          ))}
         </div>
-      </div>
+      </aside>
+
+      {/* Main Map Area */}
+      <main className="flex-1 relative h-[50vh] md:h-auto p-4 bg-neoWhite dark:bg-neoDark">
+        <div className="w-full h-full border-4 border-neoBlack dark:border-neoWhite shadow-neo relative overflow-hidden bg-gray-200">
+          <div id="dashboard-map" className="w-full h-full z-0"></div>
+        </div>
+
+        {/* Floating Stats Overlay */}
+        <div className="absolute top-8 right-8 flex flex-col gap-3 z-[1000]">
+          <div className="bg-white border-2 border-neoBlack shadow-neo p-3 min-w-[140px] hover:translate-x-1 transition-transform">
+            <p className="text-xs font-bold text-gray-500 uppercase">Total Events</p>
+            <p className="text-3xl font-black text-neoBlack">{stats.total}</p>
+          </div>
+          <div className="bg-white border-2 border-neoBlack shadow-neo p-3 min-w-[140px] hover:translate-x-1 transition-transform border-l-8 border-l-gRed">
+            <p className="text-xs font-bold text-gRed uppercase">High Severity</p>
+            <p className="text-3xl font-black text-neoBlack">{stats.high}</p>
+          </div>
+          <div className="bg-white border-2 border-neoBlack shadow-neo p-3 min-w-[140px] hover:translate-x-1 transition-transform border-l-8 border-l-gYellow">
+            <p className="text-xs font-bold text-gYellow uppercase">Medium Severity</p>
+            <p className="text-3xl font-black text-neoBlack">{stats.medium}</p>
+          </div>
+          <div className="bg-white border-2 border-neoBlack shadow-neo p-3 min-w-[140px] hover:translate-x-1 transition-transform border-l-8 border-l-gBlue">
+            <p className="text-xs font-bold text-gBlue uppercase">Low Severity</p>
+            <p className="text-3xl font-black text-neoBlack">{stats.low}</p>
+          </div>
+        </div>
+      </main>
+
+      {/* Global Styles for Scrollbar Hiding */}
+      <style>{`
+        .custom-scrollbar::-webkit-scrollbar {
+          width: 8px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+          background: #F0F0F0;
+          border-left: 2px solid #121212;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+          background: #121212;
+          border: 2px solid #F0F0F0;
+        }
+        .dark .custom-scrollbar::-webkit-scrollbar-track {
+          background: #1E1E1E;
+          border-left: 2px solid #FFFFFF;
+        }
+        .dark .custom-scrollbar::-webkit-scrollbar-thumb {
+          background: #FFFFFF;
+          border: 2px solid #1E1E1E;
+        }
+      `}</style>
     </div>
   );
 }
