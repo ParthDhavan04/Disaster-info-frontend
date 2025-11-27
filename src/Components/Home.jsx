@@ -101,7 +101,7 @@ const Home = () => {
             <div className="flex-1">
               <h3 className="text-4xl md:text-5xl font-black mb-6 dark:text-white">INSTANT ALERTS</h3>
               <div className="flex flex-wrap gap-3">
-                {['SMS', 'EMAIL', 'VOICE', 'APP_NOTIF'].map(tag => (
+                {['EMAIL', 'VOICE', 'APP_NOTIF'].map(tag => (
                   <span key={tag} className="px-4 py-2 bg-neoBlack dark:bg-white text-white dark:text-neoBlack font-mono font-bold text-sm border-2 border-transparent hover:border-neoBlack dark:hover:border-white hover:bg-transparent hover:text-neoBlack dark:hover:text-white transition-colors cursor-default">
                     {tag}
                   </span>
