@@ -97,23 +97,23 @@ export default function ManageUsers() {
 
     if (loading) {
         return (
-            <div className="min-h-screen bg-neoWhite dark:bg-neoDark flex items-center justify-center">
-                <div className="w-16 h-16 border-4 border-neoBlack border-t-gBlue rounded-full animate-spin"></div>
+            <div className="min-h-screen bg-cyber-black flex items-center justify-center">
+                <div className="w-16 h-16 border-4 border-white/10 border-t-neon-blue rounded-full animate-spin shadow-[0_0_20px_rgba(0,240,255,0.5)]"></div>
             </div>
         );
     }
 
     if (error) {
         return (
-            <div className="min-h-screen bg-neoWhite dark:bg-neoDark flex items-center justify-center p-4">
-                <div className="bg-white border-4 border-neoBlack shadow-neo p-8 text-center">
-                    <h2 className="text-2xl font-black text-gRed mb-4">ACCESS DENIED</h2>
-                    <p className="text-neoBlack font-bold mb-6">{error}</p>
+            <div className="min-h-screen bg-cyber-black flex items-center justify-center p-4">
+                <div className="glass-panel p-8 text-center rounded-2xl border border-neon-red/50 shadow-[0_0_40px_rgba(255,0,60,0.2)]">
+                    <h2 className="text-3xl font-bold text-neon-red mb-4 tracking-widest uppercase drop-shadow-[0_0_10px_rgba(255,0,60,0.8)]">Access Denied</h2>
+                    <p className="text-gray-300 font-medium mb-8">{error}</p>
                     <button
                         onClick={() => navigate('/')}
-                        className="px-6 py-2 bg-neoBlack text-white font-bold border-2 border-neoBlack hover:bg-gray-800"
+                        className="px-8 py-3 bg-white/10 text-white font-bold border border-white/20 rounded-full hover:bg-white/20 hover:border-white/40 transition-all"
                     >
-                        Go Home
+                        Return to Base
                     </button>
                 </div>
             </div>
@@ -121,47 +121,49 @@ export default function ManageUsers() {
     }
 
     return (
-        <div className="min-h-[calc(100vh-80px)] bg-neoWhite dark:bg-neoDark py-12 px-6">
+        <div className="min-h-screen bg-cyber-black text-white pt-32 pb-12 px-6">
             <div className="max-w-6xl mx-auto">
                 <div className="flex justify-between items-center mb-8">
-                    <h1 className="text-4xl md:text-5xl font-black text-neoBlack dark:text-neoWhite uppercase tracking-tighter">
-                        Manage Users
+                    <h1 className="text-4xl md:text-5xl font-bold tracking-tight">
+                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-neon-blue to-white">Manage Users</span>
                     </h1>
-                    <div className="bg-gYellow border-2 border-neoBlack px-4 py-2 font-bold shadow-neo-sm">
+                    <div className="bg-white/5 border border-white/10 px-4 py-2 rounded-full font-mono text-neon-blue shadow-[0_0_10px_rgba(0,240,255,0.2)]">
                         Total Users: {users.length}
                     </div>
                 </div>
 
-                <div className="bg-white dark:bg-neoDark border-4 border-neoBlack dark:border-neoWhite shadow-neo-lg overflow-hidden">
+                <div className="glass-panel rounded-2xl border border-white/10 overflow-hidden shadow-2xl">
                     <div className="overflow-x-auto">
                         <table className="w-full text-left border-collapse">
                             <thead>
-                                <tr className="bg-neoBlack text-white border-b-4 border-neoBlack">
-                                    <th className="p-4 font-black uppercase tracking-wide">User</th>
-                                    <th className="p-4 font-black uppercase tracking-wide">Email</th>
-                                    <th className="p-4 font-black uppercase tracking-wide">Role</th>
-                                    <th className="p-4 font-black uppercase tracking-wide text-right">Actions</th>
+                                <tr className="bg-white/5 border-b border-white/10">
+                                    <th className="p-4 font-bold uppercase tracking-widest text-xs text-gray-400">User</th>
+                                    <th className="p-4 font-bold uppercase tracking-widest text-xs text-gray-400">Email</th>
+                                    <th className="p-4 font-bold uppercase tracking-widest text-xs text-gray-400">Role</th>
+                                    <th className="p-4 font-bold uppercase tracking-widest text-xs text-gray-400 text-right">Actions</th>
                                 </tr>
                             </thead>
-                            <tbody className="divide-y-2 divide-neoBlack dark:divide-gray-700">
+                            <tbody className="divide-y divide-white/5">
                                 {users.map((user) => (
-                                    <tr key={user._id} className="hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
-                                        <td className="p-4 font-bold text-neoBlack dark:text-white">
+                                    <tr key={user._id} className="hover:bg-white/5 transition-colors group">
+                                        <td className="p-4 font-medium text-white">
                                             <div className="flex items-center gap-3">
-                                                <div className={`w-8 h-8 rounded-full border-2 border-neoBlack flex items-center justify-center font-black text-xs ${user.role === 'admin' ? 'bg-gRed text-white' : 'bg-gBlue text-white'
+                                                <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs shadow-lg ${user.role === 'admin'
+                                                    ? 'bg-neon-red text-black shadow-[0_0_10px_rgba(255,0,60,0.5)]'
+                                                    : 'bg-neon-blue text-black shadow-[0_0_10px_rgba(0,240,255,0.5)]'
                                                     }`}>
                                                     {user.fullname ? user.fullname.charAt(0).toUpperCase() : 'U'}
                                                 </div>
-                                                {user.fullname || 'Unknown'}
+                                                <span className="group-hover:text-neon-blue transition-colors">{user.fullname || 'Unknown'}</span>
                                             </div>
                                         </td>
-                                        <td className="p-4 font-mono text-sm text-gray-600 dark:text-gray-300">
+                                        <td className="p-4 font-mono text-sm text-gray-400">
                                             {user.email}
                                         </td>
                                         <td className="p-4">
-                                            <span className={`px-2 py-1 text-xs font-black uppercase border-2 border-neoBlack ${user.role === 'admin'
-                                                    ? 'bg-gRed text-white shadow-neo-sm'
-                                                    : 'bg-gray-200 text-neoBlack'
+                                            <span className={`px-2 py-1 text-[10px] font-bold uppercase tracking-wider rounded border ${user.role === 'admin'
+                                                ? 'bg-neon-red/10 text-neon-red border-neon-red/30 shadow-[0_0_10px_rgba(255,0,60,0.2)]'
+                                                : 'bg-white/5 text-gray-400 border-white/10'
                                                 }`}>
                                                 {user.role || 'user'}
                                             </span>
@@ -170,14 +172,14 @@ export default function ManageUsers() {
                                             {user.role !== 'admin' && (
                                                 <button
                                                     onClick={() => handlePromote(user._id)}
-                                                    className="px-3 py-1 bg-gBlue text-white text-xs font-bold border-2 border-neoBlack shadow-neo-sm hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all"
+                                                    className="px-3 py-1 bg-neon-blue/10 text-neon-blue text-xs font-bold border border-neon-blue/30 rounded hover:bg-neon-blue/20 hover:shadow-[0_0_10px_rgba(0,240,255,0.3)] transition-all"
                                                 >
                                                     PROMOTE
                                                 </button>
                                             )}
                                             <button
                                                 onClick={() => handleDelete(user._id)}
-                                                className="px-3 py-1 bg-white text-gRed text-xs font-bold border-2 border-neoBlack shadow-neo-sm hover:bg-gRed hover:text-white hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all"
+                                                className="px-3 py-1 bg-neon-red/10 text-neon-red text-xs font-bold border border-neon-red/30 rounded hover:bg-neon-red/20 hover:shadow-[0_0_10px_rgba(255,0,60,0.3)] transition-all"
                                             >
                                                 BAN
                                             </button>
@@ -189,8 +191,8 @@ export default function ManageUsers() {
                     </div>
 
                     {users.length === 0 && (
-                        <div className="p-8 text-center text-gray-500 font-bold">
-                            No users found.
+                        <div className="p-12 text-center text-gray-500 font-medium">
+                            No users found in the database.
                         </div>
                     )}
                 </div>

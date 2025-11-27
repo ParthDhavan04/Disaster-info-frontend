@@ -1,123 +1,185 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 
 const Home = () => {
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+
+  useEffect(() => {
+    const handleMouseMove = (e) => {
+      setMousePosition({
+        x: (e.clientX / window.innerWidth) * 2 - 1,
+        y: (e.clientY / window.innerHeight) * 2 - 1
+      });
+    };
+
+    window.addEventListener('mousemove', handleMouseMove);
+    return () => window.removeEventListener('mousemove', handleMouseMove);
+  }, []);
+
+  // Magic Particles
+  const [particles, setParticles] = useState([]);
+  useEffect(() => {
+    const particleCount = 20;
+    const newParticles = Array.from({ length: particleCount }).map((_, i) => ({
+      id: i,
+      left: Math.random() * 100,
+      top: Math.random() * 100,
+      size: Math.random() * 4 + 1,
+      duration: Math.random() * 10 + 5,
+      delay: Math.random() * 5
+    }));
+    setParticles(newParticles);
+  }, []);
+
   return (
-    <div className="min-h-screen bg-neoWhite dark:bg-neoDark text-neoBlack dark:text-neoWhite font-sans selection:bg-gYellow selection:text-neoBlack transition-colors duration-300">
+    <div className="min-h-screen bg-cyber-black text-white font-sans selection:bg-neon-purple selection:text-white overflow-hidden relative">
+
+      {/* Dynamic Background Effects */}
+      <div className="absolute inset-0 z-0 pointer-events-none">
+        {/* Grid Pattern with Parallax */}
+        <div
+          className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear_gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:40px_40px] opacity-20"
+          style={{ transform: `translate(${mousePosition.x * 20}px, ${mousePosition.y * 20}px)` }}
+        ></div>
+
+        {/* Massive Glow Orb - Interactive */}
+        <div
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-neon-blue/10 rounded-full blur-[120px] opacity-40 animate-pulse-glow"
+          style={{ transform: `translate(calc(-50% + ${mousePosition.x * -30}px), calc(-50% + ${mousePosition.y * -30}px))` }}
+        ></div>
+
+        {/* Secondary Glow */}
+        <div
+          className="absolute top-0 right-0 w-[600px] h-[600px] bg-neon-purple/10 rounded-full blur-[100px] opacity-30 animate-float"
+          style={{ animationDelay: '2s' }}
+        ></div>
+
+        {/* Scanline Effect */}
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-neon-blue/5 to-transparent h-[20%] w-full animate-scanline opacity-10 pointer-events-none"></div>
+
+        {/* Magic Particles */}
+        {particles.map((p) => (
+          <div
+            key={p.id}
+            className="absolute rounded-full bg-white opacity-20 animate-float"
+            style={{
+              left: `${p.left}%`,
+              top: `${p.top}%`,
+              width: `${p.size}px`,
+              height: `${p.size}px`,
+              animationDuration: `${p.duration}s`,
+              animationDelay: `${p.delay}s`
+            }}
+          ></div>
+        ))}
+      </div>
+
       {/* Hero Section */}
-      <section className="relative w-full min-h-[70vh] flex flex-col justify-center items-center text-center overflow-hidden border-b-4 border-neoBlack dark:border-neoWhite bg-[radial-gradient(#121212_1px,transparent_1px)] dark:bg-[radial-gradient(#ffffff_1px,transparent_1px)] [background-size:16px_16px]">
-        <div className="relative z-10 px-4 max-w-7xl mx-auto">
-          <h1 className="text-6xl md:text-8xl lg:text-9xl font-black tracking-tighter leading-none mb-8">
-            <span className="relative inline-block">
-              REAL-TIME.
-              {/* Jagged Seismograph Underline */}
-              <svg className="absolute w-full h-6 -bottom-2 left-0 text-gRed" viewBox="0 0 100 10" preserveAspectRatio="none">
-                <path d="M0 5 L 5 2 L 10 8 L 15 3 L 20 7 L 25 4 L 30 6 L 35 1 L 40 9 L 45 5 L 50 5 L 55 2 L 60 8 L 65 3 L 70 7 L 75 4 L 80 6 L 85 1 L 90 9 L 95 5 L 100 5" fill="none" stroke="currentColor" strokeWidth="3" vectorEffect="non-scaling-stroke" />
-              </svg>
+      <section className="relative z-10 w-full min-h-screen flex flex-col justify-center items-center text-center px-4 pt-20">
+        <div className="max-w-6xl mx-auto space-y-8 perspective-1000">
+
+          {/* Badge */}
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 backdrop-blur-md mb-6 animate-fade-in-up hover:border-neon-blue/50 transition-colors cursor-default group">
+            <span className="relative flex h-3 w-3">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-neon-green opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-3 w-3 bg-neon-green"></span>
+            </span>
+            <span className="text-xs font-mono text-gray-300 tracking-widest uppercase group-hover:text-white transition-colors">System Online v2.0</span>
+          </div>
+
+          {/* Headline */}
+          <h1 className="text-6xl md:text-8xl lg:text-9xl font-black tracking-tighter leading-none animate-fade-in-up delay-100">
+            <span className="inline-block hover:scale-105 transition-transform duration-500 cursor-default bg-gradient-to-r from-neon-blue via-white to-neon-blue bg-clip-text text-transparent drop-shadow-[0_0_30px_rgba(0,240,255,0.3)] bg-[length:200%_auto] animate-gradient">
+              PREDICT.
             </span>
             <br />
-            INTELLIGENCE.
+            <span className="inline-block hover:scale-105 transition-transform duration-500 cursor-default bg-gradient-to-r from-neon-purple via-white to-neon-purple bg-clip-text text-transparent drop-shadow-[0_0_30px_rgba(188,19,254,0.3)] bg-[length:200%_auto] animate-gradient delay-75">
+              PREPARE.
+            </span>
+            <br />
+            <span className="inline-block hover:scale-105 transition-transform duration-500 cursor-default bg-gradient-to-r from-neon-red via-white to-neon-red bg-clip-text text-transparent drop-shadow-[0_0_30px_rgba(255,0,60,0.3)] bg-[length:200%_auto] animate-gradient delay-150">
+              PROTECT.
+            </span>
           </h1>
-          <p className="text-xl md:text-2xl font-bold max-w-2xl mx-auto mb-12 bg-white dark:bg-neoBlack border-2 border-neoBlack dark:border-neoWhite p-6 shadow-neo dark:shadow-neo-dark transform -rotate-1">
-            Advanced disaster prediction and response coordination system for the National Disaster Response Force.
+
+          {/* Subtext */}
+          <p className="text-xl md:text-2xl font-light text-gray-400 max-w-3xl mx-auto leading-relaxed animate-fade-in-up delay-200">
+            AI-Powered Disaster Intelligence for the <span className="text-white font-semibold relative after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-full after:h-[2px] after:bg-neon-blue after:scale-x-0 hover:after:scale-x-100 after:transition-transform after:duration-300">Next Generation</span>.
           </p>
-          <div className="flex gap-4 justify-center">
-            <Link to="/dashboard" className="px-10 py-4 bg-gBlue text-white font-black text-xl border-4 border-neoBlack dark:border-neoWhite shadow-neo dark:shadow-neo-dark hover:shadow-none hover:translate-x-[4px] hover:translate-y-[4px] transition-all">
-              ENTER COMMAND
+
+          {/* CTA Buttons */}
+          <div className="flex flex-col sm:flex-row gap-6 justify-center items-center mt-12 animate-fade-in-up delay-300">
+            <Link
+              to="/dashboard"
+              className="group relative px-8 py-4 bg-neon-blue text-black font-bold text-lg rounded-full overflow-hidden transition-all duration-300 hover:scale-105 hover:shadow-[0_0_40px_rgba(0,240,255,0.6)]"
+            >
+              <div className="absolute inset-0 w-full h-full bg-white/20 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-500 skew-x-12"></div>
+              <span className="relative flex items-center gap-2">
+                Launch Console
+                <svg className="w-5 h-5 transition-transform group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                </svg>
+              </span>
+            </Link>
+            <Link
+              to="/docs"
+              className="group px-8 py-4 bg-transparent text-white font-bold text-lg border border-white/20 rounded-full hover:bg-white/5 hover:border-white/40 transition-all duration-300 backdrop-blur-sm"
+            >
+              <span className="group-hover:text-neon-blue transition-colors">Read Documentation</span>
             </Link>
           </div>
         </div>
       </section>
 
-      {/* Bento Grid Section */}
-      <section className="max-w-7xl mx-auto p-4 md:p-8">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      {/* Feature Grid Section */}
+      <section className="relative z-10 max-w-7xl mx-auto px-4 py-32">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
 
-          {/* Module 1: Live Command Center (Span 2) */}
-          <div className="md:col-span-2 bg-white dark:bg-neoBlack border-4 border-neoBlack dark:border-neoWhite shadow-neo dark:shadow-neo-dark hover:shadow-neo-lg dark:hover:shadow-neo-dark hover:scale-[1.02] transition-all duration-300 group overflow-hidden relative min-h-[350px] flex flex-col">
-            <div className="bg-neoBlack dark:bg-white text-white dark:text-neoBlack px-4 py-2 font-mono text-sm flex justify-between items-center border-b-4 border-neoBlack dark:border-neoWhite">
-              <span className="font-bold">LIVE_FEED_V.1.0</span>
-              <div className="flex items-center gap-2">
-                <span className="text-xs">STATUS: ONLINE</span>
-                <span className="w-3 h-3 rounded-full bg-gRed animate-pulse"></span>
-              </div>
-            </div>
-            <div className="flex-1 relative bg-gray-100 dark:bg-gray-900 p-4 overflow-hidden">
-              {/* Mock Map UI */}
-              <div className="absolute inset-0 opacity-20" style={{ backgroundImage: 'radial-gradient(#000 1px, transparent 1px)', backgroundSize: '20px 20px' }}></div>
-
-              {/* Map Elements */}
-              <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-                <div className="w-6 h-6 bg-gRed rounded-full animate-ping absolute opacity-75"></div>
-                <div className="w-6 h-6 bg-gRed rounded-full relative border-4 border-white dark:border-neoBlack shadow-lg"></div>
-              </div>
-
-              {/* Decorative Map Lines */}
-              <svg className="absolute inset-0 w-full h-full pointer-events-none opacity-30" stroke="currentColor">
-                <path d="M100 100 L 300 200 L 500 150" fill="none" strokeWidth="2" className="text-neoBlack dark:text-white" strokeDasharray="5,5" />
-                <circle cx="300" cy="200" r="4" className="fill-neoBlack dark:fill-white" />
-              </svg>
-
-              <div className="absolute top-4 left-4 p-3 bg-white dark:bg-neoBlack border-2 border-neoBlack dark:border-neoWhite shadow-sm text-xs font-mono font-bold z-10">
-                LAT: 28.6139° N <br /> LNG: 77.2090° E <br /> <span className="text-gRed">ALERT LEVEL: HIGH</span>
-              </div>
-            </div>
-            <div className="p-6 border-t-4 border-neoBlack dark:border-neoWhite bg-white dark:bg-neoBlack relative z-10">
-              <h3 className="text-3xl font-black mb-2">Live Command Center</h3>
-              <p className="font-medium text-gray-600 dark:text-gray-300">Real-time geospatial tracking of active units and hazard zones.</p>
-            </div>
-          </div>
-
-          {/* Module 2: AI-Powered (Span 1) */}
-          <div className="bg-gYellow border-4 border-neoBlack dark:border-neoWhite shadow-neo dark:shadow-neo-dark hover:shadow-neo-lg dark:hover:shadow-neo-dark hover:scale-[1.02] transition-all duration-300 p-6 flex flex-col justify-between min-h-[300px]">
-            <div className="flex justify-end">
-              <div className="p-3 bg-white border-2 border-neoBlack rounded-full">
-                <svg className="w-8 h-8 text-neoBlack" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+          {/* Feature 1 */}
+          <div className="group relative p-1 rounded-2xl bg-gradient-to-b from-white/10 to-transparent hover:from-neon-blue/50 transition-all duration-500">
+            <div className="absolute inset-0 bg-neon-blue/20 blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-2xl"></div>
+            <div className="relative h-full p-8 bg-cyber-black/90 backdrop-blur-xl rounded-xl border border-white/10 group-hover:border-transparent transition-all">
+              <div className="w-14 h-14 rounded-xl bg-neon-blue/10 flex items-center justify-center mb-6 group-hover:scale-110 group-hover:bg-neon-blue/20 transition-all duration-300">
+                <svg className="w-7 h-7 text-neon-blue" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
                 </svg>
               </div>
-            </div>
-            <div>
-              <h3 className="text-7xl font-black mb-2 text-neoBlack">High</h3>
-              <h4 className="text-2xl font-bold border-b-4 border-neoBlack inline-block mb-3 text-neoBlack">ACCURACY</h4>
-              <p className="font-bold text-neoBlack text-sm leading-tight">Models trained on 15+ years of disaster data for precise prediction.</p>
+              <h3 className="text-2xl font-bold text-white mb-4 group-hover:text-neon-blue transition-colors">Real-Time Tracking</h3>
+              <p className="text-gray-400 leading-relaxed group-hover:text-gray-300 transition-colors">
+                Live geospatial monitoring of active hazard zones with millisecond latency updates.
+              </p>
             </div>
           </div>
 
-          {/* Module 3: Pan-India (Span 1) */}
-          <div className="bg-gGreen border-4 border-neoBlack dark:border-neoWhite shadow-neo dark:shadow-neo-dark hover:shadow-neo-lg dark:hover:shadow-neo-dark hover:scale-[1.02] transition-all duration-300 p-6 flex flex-col items-center justify-center min-h-[300px] relative overflow-hidden group">
-            <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iMiIgY3k9IjIiIHI9IjIiIGZpbGw9IiNmZmZmZmYiIGZpbGwtb3BhY2l0eT0iMC4yIi8+PC9zdmc+')] opacity-30"></div>
-            <h3 className="text-3xl font-black text-white mb-6 z-10 relative text-center uppercase drop-shadow-[4px_4px_0px_rgba(0,0,0,1)]">Pan-India Coverage</h3>
-
-            {/* Simplified India Map Representation */}
-            <svg className="w-40 h-40 text-white drop-shadow-xl transform group-hover:scale-110 transition-transform duration-500" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" />
-            </svg>
-            <p className="mt-4 text-white font-bold text-center z-10">28 States • 8 UTs</p>
+          {/* Feature 2 */}
+          <div className="group relative p-1 rounded-2xl bg-gradient-to-b from-white/10 to-transparent hover:from-neon-purple/50 transition-all duration-500">
+            <div className="absolute inset-0 bg-neon-purple/20 blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-2xl"></div>
+            <div className="relative h-full p-8 bg-cyber-black/90 backdrop-blur-xl rounded-xl border border-white/10 group-hover:border-transparent transition-all">
+              <div className="w-14 h-14 rounded-xl bg-neon-purple/10 flex items-center justify-center mb-6 group-hover:scale-110 group-hover:bg-neon-purple/20 transition-all duration-300">
+                <svg className="w-7 h-7 text-neon-purple" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+              </div>
+              <h3 className="text-2xl font-bold text-white mb-4 group-hover:text-neon-purple transition-colors">AI Prediction</h3>
+              <p className="text-gray-400 leading-relaxed group-hover:text-gray-300 transition-colors">
+                Advanced neural networks analyzing 50+ years of data to predict disaster severity.
+              </p>
+            </div>
           </div>
 
-          {/* Module 4: Instant Alerts (Span 2) */}
-          <div className="md:col-span-2 bg-white dark:bg-neoBlack border-4 border-neoBlack dark:border-neoWhite shadow-neo dark:shadow-neo-dark hover:shadow-neo-lg dark:hover:shadow-neo-dark hover:scale-[1.02] transition-all duration-300 p-8 flex flex-col md:flex-row items-center justify-between gap-8">
-            <div className="flex-1">
-              <h3 className="text-4xl md:text-5xl font-black mb-6 dark:text-white">INSTANT ALERTS</h3>
-              <div className="flex flex-wrap gap-3">
-                {['EMAIL', 'VOICE', 'APP_NOTIF'].map(tag => (
-                  <span key={tag} className="px-4 py-2 bg-neoBlack dark:bg-white text-white dark:text-neoBlack font-mono font-bold text-sm border-2 border-transparent hover:border-neoBlack dark:hover:border-white hover:bg-transparent hover:text-neoBlack dark:hover:text-white transition-colors cursor-default">
-                    {tag}
-                  </span>
-                ))}
+          {/* Feature 3 */}
+          <div className="group relative p-1 rounded-2xl bg-gradient-to-b from-white/10 to-transparent hover:from-neon-red/50 transition-all duration-500">
+            <div className="absolute inset-0 bg-neon-red/20 blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-2xl"></div>
+            <div className="relative h-full p-8 bg-cyber-black/90 backdrop-blur-xl rounded-xl border border-white/10 group-hover:border-transparent transition-all">
+              <div className="w-14 h-14 rounded-xl bg-neon-red/10 flex items-center justify-center mb-6 group-hover:scale-110 group-hover:bg-neon-red/20 transition-all duration-300">
+                <svg className="w-7 h-7 text-neon-red" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                </svg>
               </div>
-            </div>
-            <div className="flex gap-4">
-              <div className="w-20 h-20 bg-gBlue border-4 border-neoBlack flex items-center justify-center shadow-neo hover:-translate-y-2 transition-transform">
-                <svg className="w-10 h-10 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" /></svg>
-              </div>
-              <div className="w-20 h-20 bg-gRed border-4 border-neoBlack flex items-center justify-center shadow-neo hover:-translate-y-2 transition-transform delay-75">
-                <svg className="w-10 h-10 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
-              </div>
-              <div className="w-20 h-20 bg-gYellow border-4 border-neoBlack flex items-center justify-center shadow-neo hover:-translate-y-2 transition-transform delay-150">
-                <svg className="w-10 h-10 text-neoBlack" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" /></svg>
-              </div>
+              <h3 className="text-2xl font-bold text-white mb-4 group-hover:text-neon-red transition-colors">Instant Alerts</h3>
+              <p className="text-gray-400 leading-relaxed group-hover:text-gray-300 transition-colors">
+                Multi-channel notification system delivering critical warnings via SMS, Email, and Voice.
+              </p>
             </div>
           </div>
 
